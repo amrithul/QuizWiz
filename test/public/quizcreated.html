@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Epilogue' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Created</title>
+    <style>
+        /* Reset default margin and padding */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: antiquewhite; 
+            line-height: 1.6;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff; /* White */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Heading styles */
+        h2 {
+            font-family: 'Epilogue';
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333; /* Dark Gray */
+        }
+
+        /* Button container styles */
+        .button-container {
+            display: flex;
+            justify-content: center; /* Center-align the buttons horizontally */
+            margin-top: 20px;
+        }
+
+        /* Button styles */
+        .button {
+            padding: 15px 30px;
+            width: 170px;
+            background-color: #efb034;
+            color: rgb(78, 37, 9);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+            margin: 0 10px; /* Add margin between buttons */
+        }
+
+        .button:hover {
+            background-color: #c58c1a; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Quiz Created Successfully!</h2>
+        <div class="button-container">
+            <button class="button" onclick="redirectToTeacherProfile()">Home</button>
+            <button class="button" onclick="goToViewQuizzes()">View Quizzes</button>
+        </div>
+    </div>
+
+    <script>
+        function redirectToTeacherProfile() {
+            window.location.href = "/teacherprofile.html"; // Redirect to teacher profile page
+        }
+
+        function goToViewQuizzes() {
+            window.location.href = "/viewquiz.html"; // Redirect to view quizzes page
+        }
+    </script>
+</body>
+</html>

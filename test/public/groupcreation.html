@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Epilogue' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: antiquewhite;
+            margin: 0;
+            padding: 0;
+            color: #000;
+        }
+
+        h1, h2 {
+            color: #2d2d2d;
+            text-align: center;
+            font-family: 'Epilogue'
+        }
+
+        
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 2px solid #000000;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #e59e00;
+            color: rgb(78, 37, 9);
+            font-family: 'Inter';
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 3px;
+        }
+
+        button:hover {
+            background-color: #efb034;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #000;
+        }
+
+        th {
+            background-color: #efb034;
+            color: #fff;
+            text-align: left;
+            font-family: 'Inter';
+        }
+
+        td {
+            background-color: #f9efdb;
+            color: #000;
+            text-align: left;
+        }
+
+        .actions {
+            text-align: center;
+        }
+
+        .actions button {
+            margin-right: 5px;
+        }
+
+        .div1, .div2 {
+            background-color: #f9efdb;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        #doneButton {
+            background-color: #e59e00;
+            color: rgb(78, 37, 9);;
+            font-family: 'Inter';
+            border: none;
+            width: 200px;
+            border-radius: 15px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 20px auto 0; /* Center the button horizontally and adjust top margin */
+            display: block; /* Ensure the button occupies the full width */
+        }
+
+        #doneButton:hover {
+            background-color: #efb034;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="font-family: 'Epilogue'; font-size: 40px;">Group Management</h1>
+        <div class="div1">
+        <h2>Create a New Group</h2>
+        <form id="createForm">
+            <label for="groupName" style="font-family: 'Inter'; font-weight: bold; color: #484848;">Group Name:</label>
+            <input type="text" id="groupName" name="groupName" required>
+            <input type="hidden" id="teacherEmail" name="teacherEmail">
+            <button type="submit">Create Group</button>
+        </form>
+        </div><br>
+
+        <div class="div2">
+        <h2>Add Students to Group</h2>
+        <form id="addStudentsForm">
+            <label for="groupId" style="font-family: 'Inter'; font-weight: bold; color: #484848;">Select Group:</label>
+            <select id="groupId" name="groupId" required></select>
+            <label for="studentSelect" style="font-family: 'Inter'; font-weight: bold; color: #484848;"><br>Select Students:</label>
+            <select id="studentSelect" name="studentSelect" multiple required></select>
+            <button type="submit">Add Students</button>
+        </form>
+        </div>
+        <h2>All Groups</h2>
+        <table id="groupTable">
+            <thead>
+                <tr>
+                    <th>Group Name</th>
+                    <th>Members</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="groupList"></tbody>
+        </table>
+        <button id="doneButton">Done</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get teacher's email from session storage
+            const teacherEmail = sessionStorage.getItem('email');
+            document.getElementById('teacherEmail').value = teacherEmail;
+
+            // Function to populate groups dropdown
+            const populateGroupsDropdown = async () => {
+                try {
+                    const response = await axios.get('/groups', { params: { teacherEmail } });
+                    const groups = response.data.groups;
+                    const groupIdSelect = document.getElementById('groupId');
+                    groupIdSelect.innerHTML = '';
+                    groups.forEach(group => {
+                        const option = document.createElement('option');
+                        option.value = group._id; // Use group ID as value
+                        option.textContent = group.groupName;
+                        groupIdSelect.appendChild(option);
+                    });
+
+                    // Populate group table
+                    populateGroupTable(groups);
+                } catch (error) {
+                    console.error('Error fetching groups:', error);
+                    alert('Error fetching groups. Please try again.');
+                }
+            };
+
+            // Function to populate group table
+            const populateGroupTable = (groups) => {
+                const groupList = document.getElementById('groupList');
+                groupList.innerHTML = '';
+
+                if (groups.length === 0) {
+                    const noGroupsRow = groupList.insertRow();
+                    const noGroupsCell = noGroupsRow.insertCell(0);
+                    noGroupsCell.colSpan = 3;
+                    noGroupsCell.textContent = 'No groups';
+                    noGroupsCell.style.textAlign = 'center'; // Center the text
+                } else {
+                    groups.forEach(group => {
+                        const row = groupList.insertRow();
+                        const nameCell = row.insertCell(0);
+                        const membersCell = row.insertCell(1);
+                        const actionsCell = row.insertCell(2);
+
+                        nameCell.textContent = group.groupName;
+                        membersCell.textContent = group.members.join(', ');
+
+                        // Button to remove student from group
+                        const removeButton = document.createElement('button');
+                        removeButton.textContent = 'Remove Student';
+                        removeButton.addEventListener('click', async () => {
+                            const studentEmail = prompt('Enter student email to remove:');
+                            if (studentEmail) {
+                                try {
+                                    await axios.post('/removeStudentFromGroup', { groupId: group._id, studentEmail });
+                                    populateGroupsDropdown();
+                                } catch (error) {
+                                    console.error('Error removing student from group:', error);
+                                    alert('Error removing student from group. Please try again.');
+                                }
+                            }
+                        });
+
+                        // Button to delete group
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete Group';
+                        deleteButton.addEventListener('click', async () => {
+                            if (confirm('Are you sure you want to delete this group?')) {
+                                try {
+                                    await axios.post('/deleteGroup', { groupId: group._id });
+                                    populateGroupsDropdown();
+                                } catch (error) {
+                                    console.error('Error deleting group:', error);
+                                    alert('Error deleting group. Please try again.');
+                                }
+                            }
+                        });
+
+                        actionsCell.appendChild(removeButton);
+                        actionsCell.appendChild(deleteButton);
+                    });
+                }
+            };
+
+            // Function to fetch students and populate dropdown
+            const fetchStudents = async () => {
+                try {
+                    const response = await axios.get('/students');
+                    const students = response.data.students.filter(student => student.role === 'student');
+                    const studentSelect = document.getElementById('studentSelect');
+                    studentSelect.innerHTML = '';
+                    students.forEach(student => {
+                        const option = document.createElement('option');
+                        option.value = student.email;
+                        option.textContent = `${student.firstname} ${student.lastname}`;
+                        studentSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error fetching students:', error);
+                    alert('Error fetching students. Please try again.');
+                }
+            };
+
+            // Populate groups dropdown and table on page load
+            populateGroupsDropdown();
+            fetchStudents();
+
+            // Event listener for create group form submission
+            const createForm = document.getElementById('createForm');
+            createForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const groupName = createForm.groupName.value;
+                try {
+                    await axios.post('/createGroup', { groupName, teacherEmail });
+                    alert('Group created successfully');
+                    createForm.reset();
+                    populateGroupsDropdown();
+                } catch (error) {
+                    console.error('Error creating group:', error);
+                    alert('Error creating group. Please try again.');
+                }
+            });
+
+            // Event listener for add students form submission
+            const addStudentsForm = document.getElementById('addStudentsForm');
+            addStudentsForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const groupId = addStudentsForm.groupId.value;
+                const selectedStudents = Array.from(addStudentsForm.studentSelect.selectedOptions).map(option => option.value);
+                try {
+                    await axios.post('/addStudentsToGroup', { groupId, students: selectedStudents });
+                    alert('Students added to group successfully');
+                    addStudentsForm.reset();
+                    populateGroupsDropdown();
+                } catch (error) {
+                    console.error('Error adding students to group:', error);
+                    alert('Error adding students to group. Please try again.');
+                }
+            });
+        });
+
+        document.getElementById('doneButton').addEventListener('click', () => {
+            window.location.href = 'teacherprofile.html'; // Redirect to teacherprofile.html
+        });
+
+    </script>
+</body>
+</html>

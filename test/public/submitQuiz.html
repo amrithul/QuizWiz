@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Epilogue' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <style>
+        /* Reset default margin and padding */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: antiquewhite; 
+            line-height: 1.6;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff; /* White */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Heading styles */
+        h2 {
+            font-family: 'Epilogue';
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333; /* Dark Gray */
+        }
+
+        /* Quiz question container styles */
+        .question-container {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f5f5f5; /* Light Gray */
+        }
+
+        /* Label styles */
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        /* Button styles */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #efb034; /* Orange */
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .option-button:hover {
+            background-color: #e59e00; /* Darker Orange */
+        }
+
+        /* Selected button style */
+        .option-button.selected {
+            background-color: #f04a00; 
+        }
+
+        /* Text input styles */
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #f04a00;
+            outline: none;
+        }
+
+        /* Submit button styles */
+        input[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: teal; 
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+
+        label{
+            font-family: 'Inter';
+        }
+
+        input[type="submit"]:hover {
+            background-color: rgb(0, 88, 88); 
+        }
+
+        /* Timer styles */
+        .timer {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #333; /* Dark Gray */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 id="quizName">Quiz Questions</h2>
+        <div class="timer" id="timer">00:00</div>
+        <form id="quizForm" action="/submitQuiz" method="POST">
+            <div id="questions">
+                <!-- Quiz questions will be dynamically added here -->
+            </div>
+            <input type="hidden" id="quizCode" name="quizCode">
+            <input type="submit" value="Submit Quiz">
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Retrieve participant's email from session storage
+            let participantEmail = sessionStorage.getItem("email");
+
+            // Get quiz code from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const quizCode = urlParams.get('quizCode');
+
+            // Set quiz code in the hidden input field
+            document.getElementById('quizCode').value = quizCode;
+
+            // Record start time when the page loads
+            const startTime = new Date();
+
+            // Function to update timer
+            function updateTimer() {
+                const currentTime = new Date();
+                const timeDifference = currentTime - startTime;
+                const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+                const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('timer').textContent = formattedTime;
+            }
+
+            // Update timer every second
+            setInterval(updateTimer, 1000);
+
+            // Fetch quiz data based on the quiz code
+            fetch('/takeQuiz', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ quizCode })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.quiz) {
+                    const quiz = data.quiz;
+                    const questionsContainer = document.getElementById('questions');
+                    const quizn = quiz.quizName;
+                    document.getElementById('quizName').textContent = quizn;
+
+                    quiz.questions.forEach((question, index) => {
+                        const questionContainer = document.createElement('div');
+                        questionContainer.classList.add('question-container');
+
+                        // Display question text
+                        const questionLabel = document.createElement('label');
+                        questionLabel.textContent = `Question ${index + 1}: ${question.question}`;
+                        questionContainer.appendChild(questionLabel);
+
+                        // Display buttons for multiple-choice questions
+                        if (question.options) {
+                            question.options.forEach((option, optionIndex) => {
+                                const optionButton = document.createElement('button');
+                                optionButton.classList.add('option-button');
+                                optionButton.textContent = option;
+                                optionButton.addEventListener('click', (event) => {
+                                    event.preventDefault(); // Prevent default form submission behavior
+                                    // Remove 'selected' class from all buttons in this question
+                                    const buttons = questionContainer.querySelectorAll('.option-button');
+                                    buttons.forEach(btn => btn.classList.remove('selected'));
+                                    // Add 'selected' class to the clicked button
+                                    optionButton.classList.add('selected');
+                                    // Store the selected answer in a hidden input field
+                                    const hiddenInput = document.createElement('input');
+                                    hiddenInput.type = 'hidden';
+                                    hiddenInput.name = `question${index}`;
+                                    hiddenInput.value = optionIndex + 1;
+                                    // Remove previous hidden input fields for this question
+                                    const prevHiddenInputs = questionContainer.querySelectorAll('input[type="hidden"]');
+                                    prevHiddenInputs.forEach(input => input.remove());
+                                    questionContainer.appendChild(hiddenInput);
+                                });
+                                questionContainer.appendChild(optionButton);
+                            });
+                        }
+
+                        // Add input field for text-based answers
+                        if (question.answer) {
+                            const textInput = document.createElement('input');
+                            textInput.type = 'text';
+                            textInput.name = `question${index}`;
+                            textInput.placeholder = 'Enter your answer here';
+                            questionContainer.appendChild(textInput);
+                        }
+
+                        questionsContainer.appendChild(questionContainer);
+                    });
+
+                    // Record end time when quiz is submitted
+                    document.getElementById('quizForm').addEventListener('submit', function () {
+                        const endTime = new Date();
+                        const durationInSeconds = (endTime - startTime) / 1000; // Calculate duration in seconds
+
+                        // Append hidden input fields for participantEmail and timeTaken
+                        const participantEmailInput = document.createElement('input');
+                        participantEmailInput.type = 'hidden';
+                        participantEmailInput.name = 'participantEmail';
+                        participantEmailInput.value = participantEmail;
+                        document.getElementById('quizForm').appendChild(participantEmailInput);
+
+                        const durationInput = document.createElement('input');
+                        durationInput.type = 'hidden';
+                        durationInput.name = 'timeTaken';
+                        durationInput.value = durationInSeconds;
+                        document.getElementById('quizForm').appendChild(durationInput);
+                    });
+                } else {
+                    alert('Quiz not found. Please enter a valid quiz code.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

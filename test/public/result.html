@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Epilogue' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: antiquewhite;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h1, h2 {
+            font-family: 'Epilogue';
+            text-align: center;
+            color: #333;
+        }
+        .question {
+            margin-bottom: 20px;
+            border: 1px solid #efb034;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #ffdf9f;
+            font-family: 'inter';
+        }
+        p {
+            margin: 0;
+            line-height: 1.6;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin-bottom: 10px;
+        }
+        .submitted-answer {
+            color: red;
+        }
+        .correct-answer {
+            color: green;
+        }
+        .leaderboard,
+        .home {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .leaderboard button,
+        .home button {
+            padding: 10px 20px;
+            background-color: #e59e00;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .leaderboard button:hover,
+        .home button:hover {
+            background-color: #e59e00;
+        }
+        .score,
+        .completion-time {
+            text-align: left;
+            margin-top: 20px;
+            font-size: 24px;
+            font-family: 'epilogue';
+        }
+        .completion-time{
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quiz Result</h1>
+        <div id="questions"></div>
+        <div class="score" id="score"></div>
+        <div class="completion-time" id="completionTime"></div>
+        <div class="leaderboard">
+            <button onclick="redirectToLeaderboard()">View Leaderboard</button>
+        </div>
+        <div class="home">
+            <button onclick="redirectToHome()">Home</button>
+        </div>
+    </div>
+
+    <script>
+        function redirectToLeaderboard() {
+            window.location.href = "/leaderboard.html"; // Redirect to leaderboard page
+        }
+
+        function redirectToHome() {
+            window.location.href = "/userprofile.html"; // Redirect to home page
+        }
+
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+    
+        const quizCode = getQueryParam('quizCode');
+        const score = getQueryParam('score');
+        const completionTime = getQueryParam('completionTime'); // Get completion time from query parameter
+        const submittedAnswers = JSON.parse(decodeURIComponent(getQueryParam('submittedAnswers')));
+    
+        const questionsDiv = document.getElementById('questions');
+        questionsDiv.innerHTML = '<h2>Questions</h2>';
+    
+        fetch('/takeQuiz', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ quizCode }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            data.quiz.questions.forEach((question, index) => {
+                const questionNumber = index + 1;
+                const questionText = question.question;
+                const correctAnswer = question.correctAnswer;
+                const answer = question.answer;
+                const submittedAnswer = submittedAnswers[`Question ${questionNumber}`];
+                const isCorrect = submittedAnswer === correctAnswer;
+                console.log(correctAnswer);
+
+                let questionMarkup = `<div class="question">
+                    <p><strong>Question ${questionNumber}:</strong> ${questionText}</p>`;
+
+                if (question.options) {
+                    // If the question has options, it's a multiple-choice question
+                    const options = question.options;
+                    questionMarkup += `<ul>`;
+                    options.forEach((option, optionIndex) => {
+                        const optionLetter = String.fromCharCode(65 + optionIndex);
+                        const isSelected = submittedAnswer === option;
+                        questionMarkup += `<li${isSelected ? ' class="submitted-answer"' : ''}>${optionLetter}. ${option}</li>`;
+                    });
+                    questionMarkup += `</ul>`;
+                    questionMarkup += `<p class="${isCorrect ? 'correct-answer' : 'submitted-answer'}">Your Answer: ${submittedAnswer}</p>`;
+                    questionMarkup += `<p class="correct-answer">Correct Answer: ${correctAnswer}</p>`;
+                } else {
+                    // For text answer questions, display the submitted answer and the correct answer
+                    questionMarkup += `<p class="${(submittedAnswer === answer) ? 'correct-answer' : 'submitted-answer'}">Your Answer: ${submittedAnswer}</p>`;
+                    questionMarkup += `<p class="correct-answer">Correct Answer: ${answer}</p>`;
+                }
+
+                questionMarkup += `</div>`;
+                questionsDiv.innerHTML += questionMarkup;
+            });
+    
+            // Display score and completion time
+            document.getElementById('score').innerText = `Your score: ${score}`;
+            document.getElementById('completionTime').innerText = `Completion Time: ${completionTime}`;
+        })
+        .catch(error => {
+            console.error('Error fetching quiz data:', error);
+        });
+    </script>
+</body>
+</html>

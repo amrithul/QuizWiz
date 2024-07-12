@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+  <link rel="stylesheet" href="./global.css" />
+  <link rel="stylesheet" href="./login.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abril Fatface:wght@400&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" />
+</head>
+<body>
+  <form action="/userprofile" method="post">
+  <div class="desktop-2">
+    <div class="login">
+      <div class="quizwiz2"><img src="images/logo.png" alt="logo" width="187" height="auto"></div>
+      <div class="container-24">
+        <a href="#" class="dont-have-an-container">
+          <span>Don't have an account? </span>
+          <span class="sign-up2">Sign up</span>
+        </a>
+        <b class="login1">Login</b>
+        <div class="frame9"></div>
+        <div class="frame10"></div>
+        <div class="frame9"></div>
+        <div class="frame10"></div>
+        <!-- Additional frames... -->
+        <div class="frame27">
+          <div class="textbox-5">
+            <b class="remember-me"><label for="emaillog">Email</label></b>
+            <input id="emaillog" name="emaillog" class="textfield7" type="text" />
+          </div>
+          <div class="textbox-5">
+            <b class="remember-me"><label for="password">Password</label></b>
+            <input id="passwordlog" name="passwordlog" class="textfield7" type="password" />
+          </div>
+        </div>
+        <div class="frame28">
+          <div class="frame29">
+            <div class="checkbox-2">
+              <div class="frame30">
+                <input class="frame31" type="checkbox" />
+                <div class="remember-me">Remember me</div>
+              </div>
+            </div>
+            <a href="#" class="forgot-password">Forgot password?</a>
+          </div>
+          <button onclick="return validateLoginForm()" class="button-12">
+            <div class="sign-in">Sign in</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </form>
+  <script>
+    function validateLoginForm() {
+      var email = document.getElementById("emaillog").value;
+      var password = document.getElementById("passwordlog").value;
+
+      // Basic email validation
+      var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || email.trim() === "") {
+        alert("Please enter your email.");
+        return false;
+      } else if (!emailRegex.test(email.trim())) {
+        alert("Please enter a valid email address.");
+        return false;
+      }
+
+      // Basic password validation
+      if (!password || password.trim() === "") {
+        alert("Please enter your password.");
+        return false;
+      }
+
+      // Perform additional validation if needed
+
+      //alert("Login successful!");
+      return true;
+    }
+  </script>
+
+</body>
+</html>

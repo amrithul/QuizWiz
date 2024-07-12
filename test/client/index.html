@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quiz</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9efdb; /* Light Yellow */
+        }
+
+        h2 {
+            font-family: 'Epilogue', sans-serif;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #000000; /* Black */
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff; /* White */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], select {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .question-container {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fff; /* White */
+        }
+
+        .remove-question-btn {
+            background-color: #efb034; /* Orange */
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .add-question-btn, .add-text-question-btn {
+            background-color: #efb034; /* Orange */
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        .add-text-question-btn {
+            margin-bottom: 10px;
+        }
+
+        .add-question-btn:hover, .add-text-question-btn:hover, .remove-question-btn:hover {
+            opacity: 0.8;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #efb034; /* Orange */
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #e59e00; /* Darker Orange */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Create Quiz</h2>
+        <form id="quizForm" method="POST" action="/createQuiz">
+            <div id="questions">
+                <div class="question-container" id="question1">
+                    <label for="question1">Question 1:</label>
+                    <input type="text" id="question1" class="question" name="question" required>
+
+                    <label for="option1_1">Option 1:</label>
+                    <input type="text" id="option1_1" class="option" name="options" required>
+
+                    <label for="option2_1">Option 2:</label>
+                    <input type="text" id="option2_1" class="option" name="options" required>
+
+                    <label for="option3_1">Option 3:</label>
+                    <input type="text" id="option3_1" class="option" name="options" required>
+
+                    <label for="option4_1">Option 4:</label>
+                    <input type="text" id="option4_1" class="option" name="options" required>
+
+                    <label for="correctAnswer_1">Correct Answer:</label>
+                    <select id="correctAnswer_1" class="correct-answer" name="correctAnswer" required>
+                        <option value="option1_1">Option 1</option>
+                        <option value="option2_1">Option 2</option>
+                        <option value="option3_1">Option 3</option>
+                        <option value="option4_1">Option 4</option>
+                    </select>
+
+                    <button type="button" class="remove-question-btn" onclick="removeQuestion('question1')">Remove Question</button>
+                </div>
+            </div>
+            <button type="button" class="add-question-btn" onclick="addQuestion()">Add Multiple Choice Question</button>
+            <button type="button" class="add-text-question-btn" onclick="addTextQuestion()">Add Text Answer Question</button>
+            <input type="submit" value="Create Quiz">
+        </form>
+    </div>
+
+    <script>
+        let questionCounter = 1; // Initialize the question counter
+
+        function addQuestion() {
+            questionCounter++; // Increment the question counter
+            const questionsContainer = document.getElementById('questions');
+            const questionContainer = document.createElement('div');
+            const questionId = 'question' + questionCounter; // Generate unique ID
+            questionContainer.classList.add('question-container');
+            questionContainer.id = questionId;
+
+            questionContainer.innerHTML = `
+                <label for="${questionId}">Question ${questionCounter}:</label>
+                <input type="text" id="${questionId}" class="question" name="question" required>
+
+                <label for="option1_${questionCounter}">Option 1:</label>
+                <input type="text" id="option1_${questionCounter}" class="option" name="options" required>
+
+                <label for="option2_${questionCounter}">Option 2:</label>
+                <input type="text" id="option2_${questionCounter}" class="option" name="options" required>
+
+                <label for="option3_${questionCounter}">Option 3:</label>
+                <input type="text" id="option3_${questionCounter}" class="option" name="options" required>
+
+                <label for="option4_${questionCounter}">Option 4:</label>
+                <input type="text" id="option4_${questionCounter}" class="option" name="options" required>
+
+                <label for="correctAnswer_${questionCounter}">Correct Answer:</label>
+                <select id="correctAnswer_${questionCounter}" class="correct-answer" name="correctAnswer" required>
+                    <option value="option1_${questionCounter}">Option 1</option>
+                    <option value="option2_${questionCounter}">Option 2</option>
+                    <option value="option3_${questionCounter}">Option 3</option>
+                    <option value="option4_${questionCounter}">Option 4</option>
+                </select>
+
+                <button type="button" class="remove-question-btn" onclick="removeQuestion('${questionId}')">Remove Question</button>
+            `;
+            
+            questionsContainer.appendChild(questionContainer);
+        }
+
+        function addTextQuestion() {
+            questionCounter++; // Increment the question counter
+            const questionsContainer = document.getElementById('questions');
+            const questionContainer = document.createElement('div');
+            const questionId = 'question' + questionCounter; // Generate unique ID
+            questionContainer.classList.add('question-container');
+            questionContainer.id = questionId;
+
+            questionContainer.innerHTML = `
+                <label for="${questionId}">Question ${questionCounter}:</label>
+                <input type="text" id="${questionId}" class="question" name="question" required>
+
+                <label for="answer_${questionCounter}">Answer:</label>
+                <input type="text" id="answer_${questionCounter}" class="answer" name="answer" required>
+
+                <button type="button" class="remove-question-btn" onclick="removeQuestion('${questionId}')">Remove Question</button>
+            `;
+            
+            questionsContainer.appendChild(questionContainer);
+        }
+
+        function removeQuestion(questionId) {
+            const questionContainer = document.getElementById(questionId);
+            const questionsContainer = document.getElementById('questions');
+            questionsContainer.removeChild(questionContainer);
+
+            // Update question counter and IDs of subsequent questions
+            questionCounter--;
+            for (let i = parseInt(questionId.substr(8)); i <= questionCounter; i++) {
+                const currentQuestion = document.getElementById('question' + (i + 1));
+                currentQuestion.id = 'question' + i;
+                currentQuestion.querySelector('label').innerText = `Question ${i}:`;
+                currentQuestion.querySelector('.remove-question-btn').setAttribute('onclick', `removeQuestion('question${i}')`);
+                currentQuestion.querySelector('.question').setAttribute('id', `question${i}`);
+                currentQuestion.querySelector('.question').setAttribute('name', `question`);
+                currentQuestion.querySelectorAll('.option').forEach((option, index) => {
+                    option.setAttribute('id', `option${index + 1}_${i}`);
+                    option.setAttribute('name', `options`);
+                });
+                currentQuestion.querySelector('.correct-answer').setAttribute('id', `correctAnswer_${i}`);
+                currentQuestion.querySelector('.correct-answer').setAttribute('name', `correctAnswer`);
+                currentQuestion.querySelectorAll('.correct-answer option').forEach(option => {
+                    option.value = option.value.replace(`_${i + 1}`, `_${i}`);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

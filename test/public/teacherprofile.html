@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Epilogue' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Profile</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            background-color: antiquewhite;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            background-color: antiquewhite;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .logo {
+            margin-right: 10px;
+        }
+
+        .home-button,
+        .leaderboard-button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+    
+        .home-button:hover,
+        .leaderboard-button:hover {
+            background-color: #0056b3;
+        }
+
+        .profile-section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #efb034;
+        }
+
+        .profile-section h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #000;
+            text-align: center;
+        }
+
+        .profile-section p {
+            
+            margin: 5px 0;
+            color: #333;
+            font-family: 'inter';
+        }
+
+        .button-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .button-container button {
+            margin-right: 10px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button-container button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #efb034;
+            font-weight: bold;
+            font-family: 'inter';
+        }
+
+        select {
+            width: calc(100% - 40px);
+            padding: 10px;
+            border-radius: 40px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button.action-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            background-color: #efb034;
+            color: rgb(78, 37, 9);
+            cursor: pointer;
+            font-family: 'inter';
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin: 10px;
+        }
+
+        button.action-button:hover {
+            background-color: #c58c1a;
+        }
+
+        .add-remove-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 30px;
+            background-color: #dc3545;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            margin-right: 5px;
+        }
+
+        .add-remove-buttons button:hover {
+            background-color: #c82333;
+        }
+
+        .add-remove-buttons button.add {
+            background-color: #28a745;
+        }
+
+        .add-remove-buttons button.add:hover {
+            background-color: #218838;
+        }
+
+        th:nth-child(2),
+        td:nth-child(2) {
+            width: 300px; /* Adjust as needed */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo"><img src="images/logo.png" alt="logo" width="auto" height="150"></div>
+            <div>
+                <button class="action-button" id="homeButton" style="border-radius: 30px 0 0 30px; margin-right: 0;">Home</button>
+                <button class="action-button" id="AboutUs" style="border-radius: 0; margin: 0;">About Us</button>
+                <button class="action-button" id="leaderboardButton" style="border-radius: 0 30px 30px 0; margin-left: 0;">Leaderboard</button>
+            </div>
+        </div>
+        <div class="profile-section">
+            <h1 style="font-family: 'Epilogue';">Teacher Profile</h1>
+            <p><strong>Name:</strong> <span id="teacherName">John Doe</span></p>
+            <p><strong>Email:</strong> <span id="teacherEmail">john.doe@example.com</span></p>
+            <p><strong>Role:</strong> <span id="teacherRole">Teacher</span></p>
+        </div>
+
+        <div class="button-container">
+            <button class="action-button" id="createQuizButton">Create Quiz</button>
+            <button class="action-button" id="createGroupButton">Manage Groups</button>
+            <button class="action-button" id="viewQuizzesButton" onclick="redirectToViewQuizzes()">View Quizzes</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Group Name</th>
+                    <th>Assigned Quizzes (Quiz Codes)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="groupTableBody">
+                <!-- Group and quiz data will be dynamically populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script>
+
+        sessionStorage.setItem("role", "teacher");
+        // JavaScript code starts here
+
+        async function fetchTeacherInfo() {
+            try {
+                const userEmail = sessionStorage.getItem('email');
+                const response = await axios.post('/userInfo', { email: userEmail });
+                const userInfo = response.data.userInfo;
+                document.getElementById('teacherName').textContent = userInfo.firstname + ' ' + userInfo.lastname;
+                document.getElementById('teacherEmail').textContent = userInfo.email;
+            } catch (error) {
+                console.error('Error fetching teacher information:', error);
+            }
+        }
+
+        // Function to fetch quizzes created by the teacher
+        async function fetchTeacherQuizzes() {
+            try {
+                const response = await axios.get(`/quizzes?teacherEmail=${sessionStorage.getItem('email')}`);
+                return response.data.quizzes; // Return the quizzes array from the response
+            } catch (error) {
+                console.error('Error fetching quizzes:', error);
+                return []; // Return an empty array if there's an error
+            }
+        }
+
+        // Function to populate the "Add Quiz" dropdown with quizzes
+        async function populateAddQuizDropdown(selectElement) {
+            const quizzes = await fetchTeacherQuizzes();
+            selectElement.innerHTML = ''; // Clear existing options
+            const defaultOption = document.createElement('option');
+            defaultOption.textContent = 'Select a quiz';
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
+            selectElement.appendChild(defaultOption);
+            quizzes.forEach(quiz => {
+                const option = document.createElement('option');
+                option.textContent = quiz.quizName;
+                option.value = quiz.quizCode; // Assuming quiz has a unique code field
+                selectElement.appendChild(option);
+            });
+        }
+
+        // Function to fetch and populate groups with assigned quizzes
+        async function populateGroups() {
+            try {
+                const teacherEmail = sessionStorage.getItem('email');
+                const response = await axios.get('/groups', { params: { teacherEmail } });
+                const groups = response.data.groups;
+                const groupTableBody = document.getElementById('groupTableBody');
+                groupTableBody.innerHTML = ''; // Clear existing table body
+
+                if (groups.length === 0) {
+                    // If there are no groups, display a message row
+                    const messageRow = document.createElement('tr');
+                    const messageCell = document.createElement('td');
+                    messageCell.colSpan = 3; // Span across all columns
+                    messageCell.textContent = 'No groups created';
+                    messageCell.style.textAlign = 'center';
+                    messageRow.appendChild(messageCell);
+                    groupTableBody.appendChild(messageRow);
+                } 
+                else {
+                    groups.forEach(group => {
+                        const row = document.createElement('tr');
+                        const groupNameCell = document.createElement('td');
+                        groupNameCell.textContent = group.groupName;
+                        row.appendChild(groupNameCell);
+
+                        const assignedQuizzesCell = document.createElement('td');
+                        if (group.quizzes && group.quizzes.length > 0) {
+                            assignedQuizzesCell.textContent = group.quizzes.join(', ');
+                        } else {
+                            assignedQuizzesCell.textContent = 'No quizzes assigned';
+                        }
+                        row.appendChild(assignedQuizzesCell);
+
+                        const actionCell = document.createElement('td');
+                        const addQuizSelect = document.createElement('select');
+                        populateAddQuizDropdown(addQuizSelect);
+                        actionCell.appendChild(addQuizSelect);
+
+                        const addQuizButton = document.createElement('button');
+                        addQuizButton.textContent = 'Add Quiz';
+                        addQuizButton.className = 'action-button add';
+                        addQuizButton.onclick = function() {
+                            const selectedQuizCode = addQuizSelect.value;
+                            const selectedQuizName = addQuizSelect.options[addQuizSelect.selectedIndex].textContent;
+                            if (selectedQuizCode !== 'Select a quiz') {
+                                const groupName = groupNameCell.textContent;
+                                addQuizToGroup(groupName, selectedQuizCode, selectedQuizName);
+                            } else {
+                                alert('Please select a quiz to add.');
+                            }
+                        };
+                        actionCell.appendChild(addQuizButton);
+
+                        const removeQuizButton = document.createElement('button');
+                        removeQuizButton.textContent = 'Remove Quiz';
+                        removeQuizButton.className = 'action-button';
+                        removeQuizButton.onclick = async function() {
+                            // Get the group name
+                            const groupName = groupNameCell.textContent;
+
+                            // Get the assigned quizzes array
+                            const assignedQuizzes = group.quizzes;
+
+                            // Prompt user to select a quiz to remove
+                            if (assignedQuizzes.length === 0) {
+                                alert('No quizzes assigned to remove');
+                                return;
+                            }
+
+                            // Show a confirmation dialog
+                            const quizToRemove = prompt(`Enter the name of the quiz to remove from ${groupName}:`);
+
+                            if (!quizToRemove) {
+                                // User cancelled
+                                return;
+                            }
+
+                            try {
+                                // Send a request to remove the quiz from the group
+                                const response = await axios.post('/removeQuiz', { groupName, quizCode: quizToRemove });
+                                console.log(response.data.message);
+
+                                // Refresh the table after removing the quiz
+                                populateGroups();
+                                alert(`Quiz '${quizToRemove}' removed from group '${groupName}' successfully.`);
+                            } catch (error) {
+                                console.error('Error removing quiz from group:', error);
+                            }
+                        };
+                        actionCell.appendChild(removeQuizButton);
+
+                        row.appendChild(actionCell);
+
+                        // Append the row to the table body
+                        groupTableBody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching groups:', error);
+            }
+        }
+
+        // Function to add quiz to group
+        async function addQuizToGroup(groupName, quizCode, quizName) {
+            try {
+                const response = await axios.post('/assignQuiz', { groupName, quizCode });
+                console.log(response.data.message);
+                // Refresh the groups table after adding the quiz
+                populateGroups();
+                alert(`Quiz '${quizName}' added to group '${groupName}' successfully.`);
+            } catch (error) {
+                console.error('Error adding quiz to group:', error);
+            }
+        }
+
+        // Function to handle button clicks
+        function redirectToCreateQuiz() {
+            // Redirect to the create quiz page
+            window.location.href = 'quiz.html';
+        }
+
+        function redirectToCreateGroup() {
+            // Redirect to the create group page
+            window.location.href = 'groupcreation.html';
+        }
+
+        function redirectToHome() {
+            window.location.href = 'teacherprofile.html';
+        }
+
+        function redirectToAboutUs() {
+            window.location.href = 'aboutus.html';
+        }
+
+        function redirectToLeaderboard() {
+            window.location.href = 'leaderboard.html';
+        }
+
+        // Fetch and populate groups when the page loads
+        window.onload = async function() {
+            await fetchTeacherInfo();
+            populateGroups();
+        };
+
+        function redirectToViewQuizzes() {
+            window.location.href = 'viewquiz.html';
+        }
+
+        // Attach click event listeners to the buttons
+        document.getElementById('createQuizButton').addEventListener('click', redirectToCreateQuiz);
+        document.getElementById('createGroupButton').addEventListener('click', redirectToCreateGroup);
+        document.getElementById('homeButton').addEventListener('click', redirectToHome);
+        document.getElementById('AboutUs').addEventListener('click', redirectToAboutUs);
+        document.getElementById('leaderboardButton').addEventListener('click', redirectToLeaderboard);
+    </script>
+</body>
+</html>

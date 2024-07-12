@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+    <link rel="stylesheet" href="./global.css" />
+    <link rel="stylesheet" href="./signup.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Abril Fatface:wght@400&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
+    />
+
+    <script>
+      function validateForm() {
+        var lastName = document.getElementById("lastName").value;
+        var firstName = document.getElementById("firstName").value;
+        var email = document.getElementById("email").value;
+        var password = document.getElementById("password").value;
+        var agreementCheckbox = document.getElementById("agreementCheckbox");
+        var tors = document.querySelector('input[name="tors"]:checked').value;
+
+        // Regular expressions for name validation
+        var nameRegex = /^[A-Za-z]+$/;
+
+        // Regular expression for email validation
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!nameRegex.test(lastName) || !nameRegex.test(firstName)) {
+          alert("First name and last name should consist of only alphabets.");
+          return false;
+        }
+
+        if (!emailRegex.test(email)) {
+          alert("Please enter a valid email address.");
+          return false;
+        }
+
+        if (!password || !agreementCheckbox.checked) {
+          alert("Please fill in all fields and agree to the terms.");
+          return false;
+        }
+
+        // Perform additional validation if needed
+        
+        //alert("Form submitted successfully!");
+        return true;
+      }
+
+      function toggleRadio(radioId) {
+        var radio = document.getElementById(radioId);
+        var otherRadioId = radioId === "teacherRadio" ? "studentRadio" : "teacherRadio";
+        var otherRadio = document.getElementById(otherRadioId);
+
+        radio.checked = true;
+        otherRadio.checked = false;
+      }
+    </script>
+  </head>
+  <body>
+    <form action="/login" method="post"> 
+    <div class="desktop-1">
+      <div class="container-23-parent">
+      <div class="quizwiz1"><img src="images/logo.png" alt="logo" width="187" height="auto"></div>
+        <div class="container-231">
+          <b class="register1">Register</b>
+          <div class="textbox-11">
+            <b class="last-name1">Last name</b>
+            <input id="lastName" name="lastName" class="textfield3" type="text" />
+          </div>
+          <div class="textbox-21">
+            <b class="first-name">First name</b>
+            <input id="firstName" name="firstName" class="textfield3" type="text" />
+          </div>
+          <div class="textbox-31">
+            <b class="email1">Email</b>
+            <input id="email" name="email" class="textfield3" type="text" />
+          </div>
+          <div class="textbox-41">
+            <b class="password1">Password</b>
+            <input id="password" name="password" class="textfield3" type="text" />
+          </div>
+          <a class="by-signing-up-container">
+            <span>By signing up, I agree with the </span>
+            <span class="terms-of-use">Terms of Use</span>
+            <span class="span"> </span>
+            <span>&</span>
+            <span class="span"> </span>
+            <span class="terms-of-use">Privacy Policy</span>
+          </a>
+          <button class="button-111" onclick="return validateForm()">
+            <div class="sign-up1">Sign up</div>
+          </button>
+          <a href="#" class="already-have-an-container1">
+            <span>Already have an account? </span>
+            <span class="terms-of-use">Log in</span>
+          </a>
+          <div class="checkbox-1">
+            <div class="frame6">
+              <input
+                id="agreementCheckbox"
+                class="rectangle"
+                type="checkbox"
+              />
+
+              <div class="text3"></div>
+            </div>
+          </div>
+          <img class="container-23-child" alt="" src="./public/line-3.svg" />
+
+          <img class="container-23-item" alt="" src="./public/line-3.svg" />
+
+          <div class="radio-11">
+            <div class="frame7">
+              <input
+                id="teacherRadio"
+                class="ellipse"
+                type="radio"
+                name="tors"
+                value="teacher"
+              />
+
+              <div class="teacher">Teacher</div>
+            </div>
+          </div>
+          <div class="radio-21">
+            <div class="frame8">
+              <input
+                id="studentRadio"
+                class="ellipse"
+                type="radio"
+                name="tors"
+                value="student"
+              />
+              <div class="teacher">Student</div>
+            </div>
+          </div>
+          <div class="i-am-a1">I am a</div>
+        </div>
+      </div>
+    </div>
+  </form>
+  </body>
+</html>

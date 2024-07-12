@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Epilogue' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            background-color: antiquewhite;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #efb034;
+        }
+
+        .button-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .button-container button {
+            margin-right: 10px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            background-color: #efb034;
+            color: rgb(78, 37, 9);
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button-container button:hover {
+            background-color: #c58c1a;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            background-color: antiquewhite;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .logo {
+            margin-right: 10px;
+        }
+
+        .action-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            background-color: #efb034;
+            color: rgb(78, 37, 9);
+            cursor: pointer;
+            font-family: 'inter';
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin: 10px;
+        }
+
+        .action-button:hover {
+            background-color: #c58c1a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #efb034;
+            font-weight: bold;
+            font-family: 'inter';
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo"><img src="images/logo.png" alt="logo" width="auto" height="150"></div>
+            <div>
+                <button class="action-button" id="homeButton" style="border-radius: 30px 0 0 30px; margin-right: 0;">Home</button>
+                <button class="action-button" id="AboutUs" style="border-radius: 0; margin: 0;">About Us</button>
+                <button class="action-button" id="leaderboardButton" style="border-radius: 0 30px 30px 0; margin-left: 0;">Leaderboard</button>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h1 style="font-family: 'Epilogue';">Student Profile</h1>
+            <p><strong>Name:</strong> <span id="studentName">Jane Doe</span></p>
+            <p><strong>Email:</strong> <span id="studentEmail">jane.doe@example.com</span></p>
+            <p><strong>Role:</strong> <span id="studentRole">Student</span></p>
+        </div>
+
+        <div class="button-container">
+            <button class="action-button" id="takeQuizButton">Take Quiz Using Code</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Quiz Name</th>
+                    <th>Quiz Code</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="quizTableBody">
+                <!-- Quiz data will be dynamically populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script>
+        sessionStorage.setItem("role", "student");
+
+        async function fetchUserInfo() {
+            try {
+                const userEmail = sessionStorage.getItem('email');
+                const response = await axios.post('/userInfo', { email: userEmail });
+                const userInfo = response.data.userInfo;
+                document.getElementById('studentName').textContent = userInfo.firstname + ' ' + userInfo.lastname;
+                document.getElementById('studentEmail').textContent = userInfo.email;
+            } catch (error) {
+                console.error('Error fetching teacher information:', error);
+            }
+        }
+        // Function to fetch quizzes assigned to the student
+        async function fetchAssignedQuizzes() {
+            try {
+                const userEmail = sessionStorage.getItem('email');
+                const response = await axios.post('/fetchAssignedQuizzes', { userEmail });
+                return response.data.quizzes; // Return the quizzes array from the response
+            } catch (error) {
+                console.error('Error fetching assigned quizzes:', error);
+                return []; // Return an empty array if there's an error
+            }
+        }
+
+        // Function to populate quizzes table
+        async function populateQuizzes() {
+            try {
+                const quizzes = await fetchAssignedQuizzes();
+                const quizTableBody = document.getElementById('quizTableBody');
+                quizTableBody.innerHTML = ''; // Clear existing table body
+
+                if (quizzes.length === 0) {
+                    // Display a message when no quizzes are available
+                    const row = document.createElement('tr');
+                    const messageCell = document.createElement('td');
+                    messageCell.colSpan = 3; // Span across all columns
+                    messageCell.textContent = 'No quizzes available';
+                    messageCell.style.textAlign = 'center';
+                    row.appendChild(messageCell);
+                    quizTableBody.appendChild(row);
+                } else {
+                    quizzes.forEach(async (quiz) => {
+                        try {
+                            const response = await axios.post('/takeQuiz', { quizCode: quiz.quizCode });
+                            const quizDetails = response.data.quiz;
+
+                            const row = document.createElement('tr');
+
+                            const quizNameCell = document.createElement('td');
+                            quizNameCell.textContent = quizDetails.quizName; // Set the quiz name
+                            row.appendChild(quizNameCell);
+
+                            const quizCodeCell = document.createElement('td');
+                            quizCodeCell.textContent = quiz.quizCode;
+                            row.appendChild(quizCodeCell);
+
+                            const actionCell = document.createElement('td');
+                            const takeQuizButton = document.createElement('button');
+                            takeQuizButton.textContent = 'Take Quiz';
+                            takeQuizButton.className = 'action-button';
+                            takeQuizButton.onclick = function() {
+                                // Redirect to submitQuiz.html with quiz code as query parameter
+                                window.location.href = `submitQuiz.html?quizCode=${quiz.quizCode}`;
+                            };
+                            actionCell.appendChild(takeQuizButton);
+                            row.appendChild(actionCell);
+
+                            // Append the row to the table body
+                            quizTableBody.appendChild(row);
+                        } catch (error) {
+                            console.error('Error fetching quiz details:', error);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error populating quizzes:', error);
+            }
+        }
+
+        // Fetch and populate quizzes when the page loads
+        window.onload = async function() {
+            // Assuming session storage contains student information
+            document.getElementById('studentRole').textContent = 'Student'; // Assuming role is fixed for students
+            await fetchUserInfo();
+
+            await populateQuizzes();
+        };
+
+        document.getElementById('AboutUs').addEventListener('click', function() {
+            window.location.href = 'aboutus.html';
+        });
+
+        // Redirect to the leaderboard page
+        document.getElementById('leaderboardButton').addEventListener('click', function() {
+            window.location.href = 'leaderboard.html';
+        });
+
+        document.getElementById('homeButton').addEventListener('click', function() {
+            window.location.href = 'userprofile.html';
+        });
+
+        document.getElementById('takeQuizButton').addEventListener('click', function() {
+            window.location.href = 'takequiz.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Epilogue' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quiz</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9efdb; /* Light Yellow */
+        }
+
+        h2 {
+            font-family: 'Epilogue', sans-serif;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #000000; /* Black */
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff; /* White */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], select {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+
+        .question-container {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fff; /* White */
+        }
+
+        .remove-question-btn {
+            background-color: #efb034; /* Orange */
+            color: rgb(78, 37, 9);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .add-question-btn, .add-text-question-btn {
+            background-color: #efb034; /* Orange */
+            color: rgb(78, 37, 9);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        .add-text-question-btn {
+            margin-bottom: 10px;
+            color: rgb(78, 37, 9);
+        }
+
+        .add-question-btn:hover, .add-text-question-btn:hover, .remove-question-btn:hover {
+            opacity: 0.8;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            font-family: 'inter';
+            background-color: #efb034; /* Orange */
+            color: rgb(78, 37, 9);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            opacity: 0.8;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center; /* Center align horizontally */
+            margin-top: 10px;
+        }
+
+        #home {
+            padding: 10px 30px;
+            width: 170px;
+            background-color: #efb034;
+            color: rgb(78, 37, 9);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin: 0 10px; /* Add margin between buttons */
+        }
+
+        #home:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Create Quiz</h2>
+        <form id="quizForm" method="POST" action="/saveQuiz">
+            <label for="quizName">Quiz Name:</label>
+            <input type="text" id="quizName" name="quizName" required>
+            <input type="hidden" id="teacherEmail" name="teacherEmail">
+            
+            <div id="questions">
+                <!-- Initially, no questions here -->
+            </div>
+            <input type="hidden" id="questionsData" name="questionsData">
+            <button type="button" class="add-question-btn" onclick="addQuestion()" style="font-family: 'inter';">Add Multiple Choice Question</button>
+            <button type="button" class="add-text-question-btn" onclick="addTextQuestion()" style="font-family: 'inter';">Add Text Answer Question</button>
+            <input type="submit" value="Create Quiz" onclick="prepareQuestionsData()">
+        </form>
+        <div class="button-container">
+            <button id="home" onclick="redirectToTeacherProfile()">Home</button>
+        </div>
+    </div>
+
+    <script>
+        function redirectToTeacherProfile() {
+            window.location.href = "/teacherprofile.html"; // Redirect to teacher profile page
+        }
+        let questionCounter = 0;
+        const teacherEmail = sessionStorage.getItem('email');
+        console.log(teacherEmail);
+        document.getElementById('teacherEmail').value = teacherEmail;
+
+        function addQuestion() {
+            questionCounter++;
+            const questionsContainer = document.getElementById('questions');
+            const questionContainer = document.createElement('div');
+            const questionId = 'question' + questionCounter;
+            questionContainer.classList.add('question-container');
+            questionContainer.id = questionId;
+
+            questionContainer.innerHTML = `
+                <label for="${questionId}">Question ${questionCounter}:</label>
+                <input type="text" id="${questionId}" class="question" name="questions[${questionCounter}][question]" required>
+
+                <label for="option1_${questionCounter}">Option 1:</label>
+                <input type="text" id="option1_${questionCounter}" class="option" name="questions[${questionCounter}][options][]" required>
+
+                <label for="option2_${questionCounter}">Option 2:</label>
+                <input type="text" id="option2_${questionCounter}" class="option" name="questions[${questionCounter}][options][]" required>
+
+                <label for="option3_${questionCounter}">Option 3:</label>
+                <input type="text" id="option3_${questionCounter}" class="option" name="questions[${questionCounter}][options][]" required>
+
+                <label for="option4_${questionCounter}">Option 4:</label>
+                <input type="text" id="option4_${questionCounter}" class="option" name="questions[${questionCounter}][options][]" required>
+
+                <label for="correctAnswer_${questionCounter}">Correct Answer:</label>
+                <select id="correctAnswer_${questionCounter}" class="correct-answer" name="questions[${questionCounter}][correctAnswer]" required>
+                    <option value="1">Option 1</option>
+                    <option value="2">Option 2</option>
+                    <option value="3">Option 3</option>
+                    <option value="4">Option 4</option>
+                </select>
+
+                <button type="button" class="remove-question-btn" onclick="removeQuestion('${questionId}')">Remove Question</button>
+            `;
+
+            questionsContainer.appendChild(questionContainer);
+        }
+
+        function addTextQuestion() {
+            questionCounter++;
+            const questionsContainer = document.getElementById('questions');
+            const questionContainer = document.createElement('div');
+            const questionId = 'question' + questionCounter;
+            questionContainer.classList.add('question-container');
+            questionContainer.id = questionId;
+
+            questionContainer.innerHTML = `
+                <label for="${questionId}">Question ${questionCounter}:</label>
+                <input type="text" id="${questionId}" class="question" name="questions[${questionCounter}][question]" required>
+
+                <label for="answer_${questionCounter}">Answer:</label>
+                <input type="text" id="answer_${questionCounter}" class="answer" name="questions[${questionCounter}][answer]" required>
+
+                <button type="button" class="remove-question-btn" onclick="removeQuestion('${questionId}')">Remove Question</button>
+            `;
+
+            questionsContainer.appendChild(questionContainer);
+        }
+
+        function removeQuestion(questionId) {
+            const questionContainer = document.getElementById(questionId);
+            const questionsContainer = document.getElementById('questions');
+            questionsContainer.removeChild(questionContainer);
+
+            questionCounter--;
+            for (let i = parseInt(questionId.substr(8)); i <= questionCounter; i++) {
+                const currentQuestion = document.getElementById('question' + (i + 1));
+                currentQuestion.id = 'question' + i;
+                currentQuestion.querySelector('label').innerText = `Question ${i}:`;
+                currentQuestion.querySelector('.remove-question-btn').setAttribute('onclick', `removeQuestion('question${i}')`);
+                currentQuestion.querySelector('.question').setAttribute('id', `question${i}`);
+                currentQuestion.querySelector('.question').setAttribute('name', `questions[${i}][question]`);
+                currentQuestion.querySelector('.answer').setAttribute('id', `answer_${i}`);
+                currentQuestion.querySelector('.answer').setAttribute('name', `questions[${i}][answer]`);
+                currentQuestion.querySelector('.correct-answer').setAttribute('id', `correctAnswer_${i}`);
+                currentQuestion.querySelector('.correct-answer').setAttribute('name', `questions[${i}][correctAnswer]`);
+            }
+        }
+
+        function prepareQuestionsData() {
+            const questions = document.querySelectorAll('.question-container');
+            const questionsData = [];
+
+            questions.forEach(question => {
+                const questionObj = {};
+                const questionText = question.querySelector('.question').value;
+                questionObj.question = questionText;
+                if (question.querySelector('.option')) {
+                    questionObj.options = [];
+                    const options = question.querySelectorAll('.option');
+                    options.forEach(option => {
+                        questionObj.options.push(option.value);
+                    });
+                    questionObj.correctAnswer = question.querySelector('.correct-answer').value;
+                } else if (question.querySelector('.answer')) {
+                    questionObj.answer = question.querySelector('.answer').value;
+                }
+                questionsData.push(questionObj);
+            });
+
+            document.getElementById('questionsData').value = JSON.stringify(questionsData);
+        }
+    </script>
+</body>
+</html>

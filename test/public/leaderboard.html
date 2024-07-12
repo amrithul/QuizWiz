@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link href='https://fonts.googleapis.com/css?family=Epilogue' rel='stylesheet'>
+<link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaderboard</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9efdb; /* Light Yellow */
+        margin: 0;
+        padding: 0;
+    }
+
+    .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            background-color: antiquewhite;
+            border-radius: 20px 20px 0 0;
+        }
+
+    .logo {
+        margin-right: 10px;
+    }
+
+    .home-button,
+    .leaderboard-button {
+        padding: 10px 20px;
+        border: none;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+
+    button.action-button {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 30px;
+        background-color: #efb034;
+        color: rgb(78, 37, 9);
+        cursor: pointer;
+        font-family: 'inter';
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        margin: 10px;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 25px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+        text-align: center;
+        font-size: 24px;
+        font-family: 'Epilogue';
+        margin-bottom: 20px;
+        color: #333;
+    }
+    label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: bold;
+        color: #555;
+    }
+    select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        color: #555;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius:6px;
+        margin-top: 20px;
+    }
+    th, td {
+        padding: 12px 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        font-family: 'Inter';
+        background-color: #efb034;
+        font-weight: bold;
+        color: #333;
+    }
+    td {
+        background-color: rgb(255, 249, 242);
+    }
+
+    th:nth-child(4),
+    td:nth-child(4) {
+        width: 150px; /* Adjust as needed */
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="logo"><img src="images/logo.png" alt="logo" width="auto" height="150"></div>
+        <div>
+            <button class="action-button" id="homeButton" style="border-radius: 30px 0 0 30px; margin-right: 0;">Home</button>
+            <button class="action-button" id="AboutUs" style="border-radius: 0 30px 30px 0; margin-left: 0;">About Us</button>
+        </div>
+    </div>
+    <h2>Leaderboard</h2>
+    <label for="quizSelector" style="font-family: 'Inter'">Select Quiz:</label>
+    <select id="quizSelector"></select>
+    <table id="leaderboardTable">
+        <thead>
+            <tr>
+                <th style="border-radius: 6px 0 0 0;">Rank</th>
+                <th>Name</th>
+                <th>Score</th>
+                <th style="border-radius: 0 6px 0 0;">Completion Time</th>
+            </tr>
+        </thead>
+        <tbody id="leaderboardBody"></tbody>
+    </table>
+</div>
+
+<script>
+    // Retrieve user's email from session storage
+    const userEmail = sessionStorage.getItem('email');
+
+    // Fetch quizzes attended by the user from the server
+    fetch('/fetchQuizzes', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userEmail })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const quizSelector = document.getElementById('quizSelector');
+        if (data.quizzes && data.quizzes.length > 0) {
+            data.quizzes.forEach(quiz => {
+                const option = document.createElement('option');
+                option.text = quiz.quizName + "(" + quiz.quizCode + ")";
+                option.value = quiz.quizCode; // Set the value of the option to quiz code
+                quizSelector.add(option);
+            });
+            renderLeaderboard(data.quizzes[0].participants); // Render leaderboard for the first quiz initially
+            quizSelector.addEventListener('change', function() {
+                const selectedQuizCode = this.value; // Get the selected quiz code
+                const selectedQuiz = data.quizzes.find(quiz => quiz.quizCode === selectedQuizCode);
+                if (selectedQuiz) {
+                    renderLeaderboard(selectedQuiz.participants);
+                } else {
+                    console.error('Selected quiz not found:', selectedQuizCode);
+                }
+            });
+        } else {
+            // Clear the quiz selector
+            quizSelector.innerHTML = '';
+            // Display a message indicating no quizzes are available
+            const option = document.createElement('option');
+            option.text = 'No quizzes available';
+            option.disabled = true;
+            quizSelector.add(option);
+            // Display a message under the leaderboard table
+            const leaderboardBody = document.getElementById('leaderboardBody');
+            leaderboardBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No quizzes available</td></tr>';
+        }
+    })
+    .catch(error => console.error('Error fetching quizzes:', error));
+
+    // Function to render leaderboard based on selected quiz
+    function renderLeaderboard(participants = []) {
+        const leaderboardBody = document.getElementById('leaderboardBody');
+        leaderboardBody.innerHTML = ''; // Clear previous entries
+        
+        if (participants.length > 0) {
+            participants.sort((a, b) => {
+                if (b.score !== a.score) {
+                    return b.score - a.score;
+                } else {
+                    return a.timeTaken - b.timeTaken; // Sort by completion time if scores are equal
+                }
+            });
+            participants.forEach((participant, index) => {
+                const row = `<tr>
+                                <td>${index + 1}</td>
+                                <td>${participant.name}</td>
+                                <td>${participant.score}</td>
+                                <td>${formatTime(participant.timeTaken)}</td>
+                            </tr>`;
+                leaderboardBody.insertAdjacentHTML('beforeend', row);
+            });
+        } else {
+            // Display message for no data
+            const emptyRow = `<tr><td colspan="4" style="text-align: center;">No data to show</td></tr>`;
+            leaderboardBody.insertAdjacentHTML('beforeend', emptyRow);
+        }
+    }
+
+
+    // Function to format time in HH:MM:SS format
+    function formatTime(timeInSeconds) {
+        const hours = Math.floor(timeInSeconds / 3600);
+        const minutes = Math.floor((timeInSeconds % 3600) / 60);
+        const seconds = timeInSeconds % 60;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function redirectToHome() {
+        if(sessionStorage.getItem('role') === 'teacher') {
+            window.location.href = 'teacherprofile.html';
+        }
+        else if(sessionStorage.getItem('role') === 'student') {
+            window.location.href = 'userprofile.html';
+        }
+    }
+
+    function redirectToAboutUs() {
+        window.location.href = 'aboutus.html';
+    }
+
+    document.getElementById('homeButton').addEventListener('click', redirectToHome);
+    document.getElementById('AboutUs').addEventListener('click', redirectToAboutUs);
+
+</script>
+
+</body>
+</html>

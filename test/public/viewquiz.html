@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Epilogue' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Quiz</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9efdb; /* Light Yellow */
+        }
+
+        h2 {
+            font-family: 'Epilogue', sans-serif;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #000000; /* Black */
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff; /* White */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], select {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .question-container {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fff; /* White */
+        }
+
+        .remove-question-btn {
+            background-color: #efb034; /* Orange */
+            color: rgb(78, 37, 9);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .add-question-btn {
+            background-color: #efb034; /* Orange */
+            color: rgb(78, 37, 9);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .add-question-btn:hover, .remove-question-btn:hover {
+            opacity: 0.8;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center; /* Center align horizontally */
+            margin-top: 10px;
+        }
+
+        #home {
+            padding: 10px 30px;
+            width: 170px;
+            background-color: #efb034;
+            color: rgb(78, 37, 9);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin: 0 10px; /* Add margin between buttons */
+        }
+
+        #home:hover {
+            opacity: 0.8;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            font-family: 'inter';
+            background-color: #efb034; /* Orange */
+            color: rgb(78, 37, 9);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Edit Quiz</h2>
+        <form id="quizForm" method="POST" action="/editQuiz">
+            <label for="quizSelect">Select Quiz:</label>
+            <select id="quizSelect" name="quizCode" required>
+                <!-- Options will be populated dynamically -->
+            </select>
+            <input type="hidden" id="teacherEmail" name="teacherEmail">
+            <label for="quizName">Quiz Name:</label>
+            <input type="text" id="quizName" name="quizName" required>
+            
+            <div id="questions">
+                <!-- Existing questions will be populated dynamically -->
+            </div>
+            <input type="hidden" id="questionsData" name="questionsData">
+            <button type="button" class="add-question-btn" onclick="addQuestion()">Add Multiple Choice Question</button>
+            <button type="button" class="add-question-btn" onclick="addTextQuestion()" style="margin-bottom: 10px;">Add Text Answer Question</button>
+            <input type="submit" value="Save Quiz" onclick="prepareQuestionsData()">
+            <button type="button" class="remove-question-btn" onclick="deleteQuiz()">Delete Quiz</button>
+        </form>
+        <div class="button-container">
+            <button id="home" onclick="redirectToTeacherProfile()">Home</button>
+        </div>
+    </div>
+
+    <script>
+        function redirectToTeacherProfile() {
+            window.location.href = "/teacherprofile.html"; // Redirect to teacher profile page
+        }
+        const teacherEmail = sessionStorage.getItem('email');
+        document.getElementById('teacherEmail').value = teacherEmail;
+
+        // Function to fetch quizzes created by the teacher
+
+        async function fetchQuizzes() {
+            try {
+                const response = await axios.get('/quizzes', {
+                    params: {
+                        teacherEmail: teacherEmail // Make sure teacherEmail is correctly retrieved
+                    }
+                });
+                const quizzes = response.data.quizzes;
+                const quizSelect = document.getElementById('quizSelect');
+                // Clear previous options
+                quizSelect.innerHTML = '';
+                // Add new options
+                if (quizzes.length === 0) {
+                // If no quizzes are available, display an alert message
+                alert('No quizzes found. Please create a quiz.');
+                window.location.href = '/teacherprofile.html';
+                } 
+                else {
+                    quizzes.forEach(quiz => {
+                        const option = document.createElement('option');
+                        option.value = quiz.quizCode;
+                        option.textContent = quiz.quizName;
+                        quizSelect.appendChild(option);
+                    });
+                    // Trigger change event to populate questions for the selected quiz
+                    if (quizzes.length > 0) {
+                        quizSelect.dispatchEvent(new Event('change'));
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching quizzes:', error);
+            }
+        }
+
+// Fetch quizzes when the page loads
+        fetchQuizzes();
+
+        // Function to populate questions for the selected quiz
+        async function populateQuestions(quizCode) {
+            try {
+                const response = await axios.post('/takeQuiz', { quizCode });
+                const quiz = response.data.quiz;
+                const quizNameInput = document.getElementById('quizName');
+                quizNameInput.value = quiz.quizName;
+                const questionsContainer = document.getElementById('questions');
+                questionsContainer.innerHTML = '';
+                quiz.questions.forEach((question, index) => {
+                    const questionContainer = document.createElement('div');
+                    questionContainer.classList.add('question-container');
+                    questionContainer.innerHTML = `
+                        <label for="question${index}">Question ${index + 1}:</label>
+                        <input type="text" id="question${index}" class="question" name="questions[${index}][question]" value="${question.question}" required>
+                    `;
+                    if (question.options) {
+                        question.options.forEach((option, i) => {
+                            questionContainer.innerHTML += `
+                                <label for="option${i + 1}_${index}">Option ${i + 1}:</label>
+                                <input type="text" id="option${i + 1}_${index}" class="option" name="questions[${index}][options][]" value="${option}" required>
+                            `;
+                        });
+                        questionContainer.innerHTML += `
+                            <label for="correctAnswer_${index}">Correct Answer:</label>
+                            <select id="correctAnswer_${index}" class="correct-answer" name="questions[${index}][correctAnswer]" required>
+                                <option value="1" ${question.correctAnswer === '1' ? 'selected' : ''}>Option 1</option>
+                                <option value="2" ${question.correctAnswer === '2' ? 'selected' : ''}>Option 2</option>
+                                <option value="3" ${question.correctAnswer === '3' ? 'selected' : ''}>Option 3</option>
+                                <option value="4" ${question.correctAnswer === '4' ? 'selected' : ''}>Option 4</option>
+                            </select>
+                        `;
+                    } else if (question.answer) {
+                        questionContainer.innerHTML += `
+                            <label for="answer_${index}">Answer:</label>
+                            <input type="text" id="answer_${index}" class="answer" name="questions[${index}][answer]" value="${question.answer}" required>
+                        `;
+                    }
+                    questionContainer.innerHTML += `<button type="button" class="remove-question-btn" onclick="removeQuestion(${index})">Remove Question</button>`;
+                    questionsContainer.appendChild(questionContainer);
+                });
+            } catch (error) {
+                console.error('Error fetching quiz questions:', error);
+            }
+        }
+
+        // Function to add a multiple choice question
+        function addQuestion() {
+            const questionsContainer = document.getElementById('questions');
+            const questionContainer = document.createElement('div');
+            questionContainer.classList.add('question-container');
+            questionContainer.innerHTML = `
+                <label for="newQuestion">New Question:</label>
+                <input type="text" id="newQuestion" class="question" name="newQuestion" required>
+
+                <label for="newOption1">Option 1:</label>
+                <input type="text" id="newOption1" class="option" name="newOptions[]" required>
+
+                <label for="newOption2">Option 2:</label>
+                <input type="text" id="newOption2" class="option" name="newOptions[]" required>
+
+                <label for="newOption3">Option 3:</label>
+                <input type="text" id="newOption3" class="option" name="newOptions[]" required>
+
+                <label for="newOption4">Option 4:</label>
+                <input type="text" id="newOption4" class="option" name="newOptions[]" required>
+
+                <label for="newCorrectAnswer">Correct Answer:</label>
+                <select id="newCorrectAnswer" class="correct-answer" name="newCorrectAnswer" required>
+                    <option value="1">Option 1</option>
+                    <option value="2">Option 2</option>
+                    <option value="3">Option 3</option>
+                    <option value="4">Option 4</option>
+                </select>
+
+                <button type="button" class="remove-question-btn" onclick="removeNewQuestion()">Remove Question</button>
+            `;
+            questionsContainer.appendChild(questionContainer);
+        }
+
+        // Function to add a text answer question
+        function addTextQuestion() {
+            const questionsContainer = document.getElementById('questions');
+            const questionContainer = document.createElement('div');
+            questionContainer.classList.add('question-container');
+            questionContainer.innerHTML = `
+                <label for="newQuestion">New Question:</label>
+                <input type="text" id="newQuestion" class="question" name="newQuestion" required>
+
+                <label for="newAnswer">Answer:</label>
+                <input type="text" id="newAnswer" class="answer" name="newAnswer" required>
+
+                <button type="button" class="remove-question-btn" onclick="removeNewQuestion()">Remove Question</button>
+            `;
+            questionsContainer.appendChild(questionContainer);
+        }
+
+        // Function to remove a question
+        function removeQuestion(index) {
+            const questionsContainer = document.getElementById('questions');
+            const questionToRemove = document.querySelector(`#questions .question-container:nth-child(${index + 1})`);
+            questionsContainer.removeChild(questionToRemove);
+        }
+
+        // Function to remove a new question
+        function removeNewQuestion() {
+            const questionsContainer = document.getElementById('questions');
+            const newQuestion = questionsContainer.lastChild;
+            questionsContainer.removeChild(newQuestion);
+        }
+
+        // Function to prepare questions data before submitting the form
+        function prepareQuestionsData() {
+            const questions = document.querySelectorAll('.question-container');
+            const questionsData = [];
+
+            questions.forEach(question => {
+                const questionObj = {};
+                const questionText = question.querySelector('.question').value;
+                questionObj.question = questionText;
+                if (question.querySelector('.option')) {
+                    questionObj.options = [];
+                    const options = question.querySelectorAll('.option');
+                    options.forEach(option => {
+                        questionObj.options.push(option.value);
+                    });
+                    questionObj.correctAnswer = question.querySelector('.correct-answer').value;
+                } else if (question.querySelector('.answer')) {
+                    questionObj.answer = question.querySelector('.answer').value;
+                }
+                questionsData.push(questionObj);
+            });
+
+            document.getElementById('questionsData').value = JSON.stringify(questionsData);
+            alert('Quiz saved successfully!');
+        }
+
+
+        // Event listener to populate questions when a quiz is selected
+        document.getElementById('quizSelect').addEventListener('change', function() {
+            const quizCode = this.value;
+            populateQuestions(quizCode);
+        });
+
+        async function deleteQuiz() {
+            const quizCode = document.getElementById('quizSelect').value;
+
+            try {
+                const response = await axios.post('/deleteQuiz', { quizCode });
+                alert(response.data.message); // Display success message
+                location.reload();
+            } catch (error) {
+                console.error('Error deleting quiz:', error);
+                alert('Error deleting quiz. Please try again.'); // Display error message
+            }
+        }
+    </script>
+</body>
+</html>
