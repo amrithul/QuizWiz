@@ -1,5 +1,3 @@
-Here's a professional and complete `README.md` for your **QuizWiz** project, ideal for showcasing on GitHub:
-
 ---
 
 # 🎯 QuizWiz – A Comprehensive Online Quiz System
